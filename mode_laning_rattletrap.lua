@@ -14,43 +14,28 @@ end
 
 ----------------------------------------------------------------------------------------------------
 
-function Think()
-	local npcBot = GetBot();
-
-	-- Do the standard Think
-	mode_generic_defend_ally.Think()
-
-	-- Check if we're already using an ability
-	if ( npcBot:IsUsingAbility() ) then return end;
-	
-	-- If we have a target and can cast LSA on them, do so
-	if ( npcBot:GetTarget() ~= nil ) then
-		abilityLSA = npcBot:GetAbilityByName( "lina_light_strike_array" );
-		if ( abilityLSA:IsFullyCastable() )
-		then
-			npcBot:Action_UseAbilityOnLocation( abilityLSA, npcBot:GetTarget():GetLocation() );
-		end
-	end
-end
+--function Think()
+--	local npcBot = GetBot();-
+--	local myLoc = npcBot:GetLocation();
+--	myLoc.x = myLoc.x + 250;
+--	myLoc.y = myLoc.y + 250;
+--	npcBot:Action_MoveToLocation(myLoc);
+--end
 
 ----------------------------------------------------------------------------------------------------
 
 function GetDesire()
-
 	local npcBot = GetBot();
-	local fBonus = 0.0;
-
-	-- If we have a target and can cast Light Strike Array, our desire to help defend should be higher than normal
-	if ( npcBot:GetTarget() ~= nil )
-	then
-		abilityLSA = npcBot:GetAbilityByName( "lina_light_strike_array" );
-		if ( abilityLSA:IsFullyCastable() )
-		then
-			fBonus = 0.25;
-		end
+	-- "rattletrap_battery_assault"
+	-- "rattletrap_power_cogs"
+	-- "rattletrap_rocket_flare"
+	
+  if (npcBot:GetAbilityByName("rattletrap_hookshot"):IsFullyCastable()) then
+    print("Hookshot off cooldown, trying to use it for a kill.");
+		return BOT_MODE_DESIRE_VERYLOW;
 	end
 
-	return Clamp( mode_generic_defend_ally.GetDesire() + fBonus, BOT_MODE_DESIRE_NONE, BOT_MODE_DESIRE_ABSOLUTE );
+	return BOT_MODE_DESIRE_ABSOLUTE;
 end
 
 ----------------------------------------------------------------------------------------------------

@@ -34,9 +34,9 @@ function ItemPurchaseThink()
  -- TODO - Always buy when we don't have one "item_tpscroll"
 
 	local sNextItem = tableItemsToBuy[1];
-
-	npcBot:SetNextItemPurchaseValue( GetItemCost( sNextItem ) );
-	if ( npcBot:GetGold() >= GetItemCost( sNextItem ) )
+  local nextItemCost = GetItemCost(sNextItem);
+	npcBot:SetNextItemPurchaseValue(nextItemCost);
+	if (npcBot:GetGold() >= nextItemCost)
 	then
 		npcBot:Action_PurchaseItem( sNextItem );
 		table.remove( tableItemsToBuy, 1 );

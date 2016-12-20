@@ -14,7 +14,9 @@ function AbilityUsageThink()
   flare = npcBot:GetAbilityByName(flare_name);
   hookshot = npcBot:GetAbilityByName(hookshot_name);
   
-  local tableNearbyEnemyHeroes = npcBot:GetNearbyHeroes( 300, true, BOT_MODE_NONE );
+  -- TODO - Find cog closest when out numbered and destroy it.
+  
+  local tableNearbyEnemyHeroes = npcBot:GetNearbyHeroes( 330, true, BOT_MODE_NONE );
   for _,npcEnemy in pairs( tableNearbyEnemyHeroes )
   do
       -- Start with cogs to push or trap.
@@ -23,7 +25,7 @@ function AbilityUsageThink()
       end
       
       -- Use battery assualt then to kill.
-      if (batteryAssualt:IsFullyCastable() and GetUnitToUnitDistance(npcBot, npcEnemy) < 150) then
+      if (batteryAssualt:IsFullyCastable() and GetUnitToUnitDistance(npcBot, npcEnemy) < 160) then
         npcBot:Action_UseAbility(batteryAssualt);
         if (flare:IsFullyCastable()) then
           npcBot:Action_UseAbility(flare);
@@ -45,8 +47,18 @@ end
 function ItemUsageThink()
   local npcBot = GetBot();
   
-  if (npcBot:GetHealth() < 200) then
-    print("Need to use flask");  
+  -- Use a flask when low life.
+  if (npcBot:GetHealth() < npcBot:GetMaxHealth() - 350) then
+      for i = 0, 5 do
+        local item = npcBot:GetItemInSlot(i);
+        if (item and item:GetName() == "item_flask") then
+          -- Make sure no one can cancel it.
+          local nearbyEnemys = npcBot:GetNearbyHeroes(600, true, BOT_MODE_NONE);
+          if (#nearbyEnemys == 0)  then
+            npcBot:Action_UseAbilityOnEntity(item, npcBot);
+          end
+        end
+    end
   end
 end
 

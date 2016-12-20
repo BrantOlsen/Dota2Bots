@@ -1,4 +1,5 @@
 
+
 ----------------------------------------------------------------------------------------------------
 
 --function Think()
@@ -13,24 +14,15 @@
 
 function GetDesire()
 	local npcBot = GetBot();
-	
-	-- Get the starting rune.
-	if (DotaTime() < 0 ) then
-	 return BOT_MODE_DESIRE_VERYLOW
-  end
-	  
-	-- If we have hookshot get kills.
-  if (npcBot:GetAbilityByName("rattletrap_hookshot"):IsTrained()) then
-		return BOT_MODE_DESIRE_VERYLOW;
+	local goodHeath = npcBot:GetHealth() > npcBot:GetMaxHealth() * .4;
+  if (npcBot:GetAbilityByName("rattletrap_battery_assault"):IsInAbilityPhase() and goodHeath) then
+    print("rattletrap_battery_assault is active fighting.");
+		return BOT_MODE_DESIRE_ABSOLUTE;
+	elseif (goodHealth) then
+	  return BOT_MODE_DESIRE_MODERATE;
+  else
+    return BOT_MODE_DESIRE_VERYLOW;
 	end
-
-  -- Low on life then go out of here.
-  local hasEnoughHealth = npcBot:GetHealth() > npcBot:GetMaxHealth() * .3;
-  if (hasEnoughHealth) then
-    return BOT_ACTION_DESIRE_VERYHIGH;
-	end
-	
-	return BOT_MODE_DESIRE_VERYLOW;
 end
 
 ----------------------------------------------------------------------------------------------------

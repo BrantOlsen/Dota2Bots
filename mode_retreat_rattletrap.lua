@@ -1,6 +1,20 @@
 
 ----------------------------------------------------------------------------------------------------
 
+function OnStart()
+	print("Start Clock Mode Laning");
+	-- TODO - Use a flask or tango if we have them.
+end
+
+----------------------------------------------------------------------------------------------------
+
+function OnEnd()
+	-- Do the standard OnEnd
+	print("End Clock Mode Laning");
+end
+
+----------------------------------------------------------------------------------------------------
+
 --function Think()
 --	local npcBot = GetBot();-
 --	local myLoc = npcBot:GetLocation();
@@ -13,24 +27,11 @@
 
 function GetDesire()
 	local npcBot = GetBot();
-	
-	-- Get the starting rune.
-	if (DotaTime() < 0 ) then
-	 return BOT_MODE_DESIRE_VERYLOW
+	if (npcBot:GetHealth() < npcBot:GetMaxHealth() * .2) then
+	 return BOT_ACTION_DESIRE_VERYHIGH;
   end
-	  
-	-- If we have hookshot get kills.
-  if (npcBot:GetAbilityByName("rattletrap_hookshot"):IsTrained()) then
-		return BOT_MODE_DESIRE_VERYLOW;
-	end
 
-  -- Low on life then go out of here.
-  local hasEnoughHealth = npcBot:GetHealth() > npcBot:GetMaxHealth() * .3;
-  if (hasEnoughHealth) then
-    return BOT_ACTION_DESIRE_VERYHIGH;
-	end
-	
-	return BOT_MODE_DESIRE_VERYLOW;
+	return BOT_MODE_DESIRE_NONE;
 end
 
 ----------------------------------------------------------------------------------------------------

@@ -1,4 +1,5 @@
 
+
 ----------------------------------------------------------------------------------------------------
 
 --function Think()
@@ -13,24 +14,15 @@
 
 function GetDesire()
 	local npcBot = GetBot();
-	
-	-- Get the starting rune.
-	if (DotaTime() < 0 ) then
-	 return BOT_MODE_DESIRE_VERYLOW
-  end
-	  
-	-- If we have hookshot get kills.
-  if (npcBot:GetAbilityByName("rattletrap_hookshot"):IsTrained()) then
-		return BOT_MODE_DESIRE_VERYLOW;
+	local hasEnoughMana = npcBot:GetMana() > npcBot:GetMaxMana() * .9;
+	local hasEnoughHealth = npcBot:GetHealth() > npcBot:GetMaxHealth() * .9;
+  if (npcBot:GetAbilityByName("rattletrap_hookshot"):IsTrained() and hasEnoughMana and hasEnoughHealth) then
+    print("Hookshot off cooldown, trying to use it for a kill.");
+    -- TODO - Need a Think here since the computer has no idea what roaming is.
+		return BOT_ACTION_DESIRE_VERYLOW;
 	end
 
-  -- Low on life then go out of here.
-  local hasEnoughHealth = npcBot:GetHealth() > npcBot:GetMaxHealth() * .3;
-  if (hasEnoughHealth) then
-    return BOT_ACTION_DESIRE_VERYHIGH;
-	end
-	
-	return BOT_MODE_DESIRE_VERYLOW;
+	return BOT_ACTION_DESIRE_VERYLOW;
 end
 
 ----------------------------------------------------------------------------------------------------

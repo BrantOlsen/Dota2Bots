@@ -14,13 +14,13 @@ function AbilityUsageThink()
   flare = npcBot:GetAbilityByName(flare_name);
   hookshot = npcBot:GetAbilityByName(hookshot_name);
   
-  -- TODO - Find cog closest when out numbered and destroy it.
-  
   local tableNearbyEnemyHeroes = npcBot:GetNearbyHeroes( 330, true, BOT_MODE_NONE );
   for _,npcEnemy in pairs( tableNearbyEnemyHeroes )
   do
       -- Start with cogs to push or trap.
       if (cogs:IsFullyCastable()) then
+      
+        -- TODO - Find cog closest when out numbered and destroy it.
         npcBot:Action_UseAbility(cogs);
       end
       

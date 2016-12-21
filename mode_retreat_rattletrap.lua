@@ -27,7 +27,14 @@ end
 
 function GetDesire()
 	local npcBot = GetBot();
-	if (npcBot:GetHealth() < npcBot:GetMaxHealth() * .2) then
+	
+	 -- If we are healing in the fountain stay in the fountain.
+  if (npcBot:DistanceFromFountain() < 100 and npcBot:GetHealth() < npcBot:GetMaxHealth() * .95) then
+    return BOT_MODE_DESIRE_ABSOLUTE;
+  end
+  
+  -- If we are low get out of here.
+	if (npcBot:GetHealth() < npcBot:GetMaxHealth() * .3) then
 	 return BOT_ACTION_DESIRE_VERYHIGH;
   end
 

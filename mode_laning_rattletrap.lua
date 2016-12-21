@@ -13,10 +13,10 @@
 
 function GetDesire()
 	local npcBot = GetBot();
-	
+	 
 	-- Get the starting rune.
 	if (DotaTime() < 0 ) then
-	 return BOT_MODE_DESIRE_VERYLOW
+	 return BOT_MODE_DESIRE_VERYLOW;
   end
 	  
 	-- If we have hookshot get kills.

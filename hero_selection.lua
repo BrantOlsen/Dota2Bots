@@ -1,7 +1,7 @@
 function Think()
 	if ( GetTeam() == TEAM_RADIANT )
 	then
-		SelectHero( 0, "npc_dota_hero_antimage" );
+		--SelectHero( 0, "npc_dota_hero_antimage" );
 		SelectHero( 1, "npc_dota_hero_rattletrap" );
 		SelectHero( 2, "npc_dota_hero_bane" );
 		SelectHero( 3, "npc_dota_hero_sniper" );

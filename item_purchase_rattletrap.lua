@@ -25,6 +25,12 @@ local tableItemsToBuy = {
 function ItemPurchaseThink()
   local npcBot = GetBot();
   
+  -- TODO - Add Side Shop and Secret Shop Logic.
+  
+  if (npcBot:GetHealth() > 150 and npcBot:DistanceFromFountain() > 100) then
+    return
+  end
+  
 	if ( #tableItemsToBuy == 0 )
 	then
 		npcBot:SetNextItemPurchaseValue( 0 );

@@ -19,7 +19,6 @@ function AbilityUsageThink()
   do
       -- Start with cogs to push or trap.
       if (cogs:IsFullyCastable()) then
-      
         -- TODO - Find cog closest when out numbered and destroy it.
         npcBot:Action_UseAbility(cogs);
       end
@@ -27,10 +26,43 @@ function AbilityUsageThink()
       -- Use battery assualt then to kill.
       if (batteryAssualt:IsFullyCastable() and GetUnitToUnitDistance(npcBot, npcEnemy) < 160) then
         npcBot:Action_UseAbility(batteryAssualt);
-        if (flare:IsFullyCastable()) then
-          npcBot:Action_UseAbility(flare);
-        end
       end
+  end
+
+  -- Finish off heros with flare.
+  if (flare:IsFullyCastable()) then
+    local tableNearbyEnemyHeroes = npcBot:GetNearbyHeroes( 1000, true, BOT_MODE_NONE );
+    for _,npcEnemy in pairs( tableNearbyEnemyHeroes )
+    do
+      if (npcEnemy:GetHealth() < flare:GetAbilityDamage()) then
+        npcBot:Action_UseAbilityOnLocation(flare, npcEnemy:GetLocation());
+        break;
+      end
+    end
+  end
+
+  -- Finish off creeps with flare.
+  if (flare:IsFullyCastable() and npcBot:GetMana() > flare:GetManaCost() + cogs:GetManaCost() + hookshot:GetManaCost()) then
+    local tableNearbyEnemyCreeps = npcBot:GetNearbyCreeps(1000, true);
+    for _,creep in pairs(tableNearbyEnemyCreeps)
+    do
+      if (creep:GetHealth() < flare:GetAbilityDamage()) then
+        npcBot:Action_UseAbilityOnLocation(flare, creep:GetLocation());
+        break;
+      end
+    end
+  end
+  
+  -- If in fountain, shoot anywhere
+  if (flare:IsFullyCastable() and npcBot:DistanceFromFountain() == 0) then
+    local tableNearbyEnemyCreeps = npcBot:GetNearbyCreeps(10000, true);
+    for _,creep in pairs(tableNearbyEnemyCreeps)
+    do
+      if (creep:GetHealth() < creep:GetMaxHealth() * .8) then
+        npcBot:Action_UseAbilityOnLocation(flare, creep:GetLocation());
+        break;
+      end
+    end
   end
 
   if (hookshot:CanAbilityBeUpgraded()) then

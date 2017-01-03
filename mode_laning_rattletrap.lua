@@ -27,7 +27,7 @@ function GetDesire()
   -- Low on life then go out of here.
   local hasEnoughHealth = npcBot:GetHealth() > npcBot:GetMaxHealth() * .3;
   if (hasEnoughHealth) then
-    return BOT_ACTION_DESIRE_VERYHIGH;
+    return BOT_ACTION_DESIRE_HIGH;
 	end
 	
 	return BOT_MODE_DESIRE_VERYLOW;

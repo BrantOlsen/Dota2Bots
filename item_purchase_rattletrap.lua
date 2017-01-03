@@ -25,27 +25,33 @@ local tableItemsToBuy = {
 function ItemPurchaseThink()
   local npcBot = GetBot();
   
-  -- TODO - Add Side Shop and Secret Shop Logic.
-  
-  if (npcBot:GetHealth() > 150 and npcBot:DistanceFromFountain() > 100) then
+  if (npcBot:GetHealth() > 150 
+      and npcBot:DistanceFromFountain() ~= 0
+      and npcBot:GetActiveMode() ~= BOT_MODE_SIDE_SHOP 
+      and npcBot:GetActiveMode() ~= BOT_MODE_SECRET_SHOP 
+      and npcBot:GetActiveMode() ~= BOT_MODE_RETREAT) 
+  then
     return
   end
   
-	if ( #tableItemsToBuy == 0 )
+	if (#tableItemsToBuy == 0)
 	then
-		npcBot:SetNextItemPurchaseValue( 0 );
+		npcBot:SetNextItemPurchaseValue(0);
 		return;
 	end
 
  -- TODO - Always buy when we don't have one "item_tpscroll"
-
-	local sNextItem = tableItemsToBuy[1];
-  local nextItemCost = GetItemCost(sNextItem);
-	npcBot:SetNextItemPurchaseValue(nextItemCost);
-	if (npcBot:GetGold() >= nextItemCost)
+ 
+  npcBot.NextItemName = tableItemsToBuy[1];
+  local nextItemCost = GetItemCost(npcBot.NextItemName);
+  npcBot:SetNextItemPurchaseValue(nextItemCost);
+  canBuyAtSideShop = npcBot:DistanceFromSecretShop() == 0 and IsItemPurchasedFromSideShop(npcBot.NextItemName);
+  canBuyAtFountain = npcBot:DistanceFromFountain() == 0 and not IsItemPurchasedFromSecretShop(npcBot.NextItemName);
+	if (npcBot:GetGold() >= nextItemCost and (canBuyAtSideShop or canBuyAtFountain))
 	then
-		npcBot:Action_PurchaseItem( sNextItem );
-		table.remove( tableItemsToBuy, 1 );
+		npcBot:Action_PurchaseItem(npcBot.NextItemName);
+		table.remove(tableItemsToBuy, 1);
+		npcBot.NextItemName = null;
 	end
 
 end

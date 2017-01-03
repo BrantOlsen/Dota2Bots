@@ -17,16 +17,23 @@ function Think()
 end
 
 function UpdateLaneAssignments() 
-  lanes = {};
-  lanes[0] = LANE_BOT;
-  lanes[1] = LANE_TOP;
-  lanes[2] = LANE_TOP;
-  lanes[3] = LANE_MID;
-  lanes[4] = LANE_BOT;
-  lanes[5] = LANE_TOP;
-  lanes[6] = LANE_TOP;
-  lanes[7] = LANE_BOT;
-  lanes[8] = LANE_BOT;
-  lanes[9] = LANE_MID;
-  return lanes;
+    if (GetTeam() == TEAM_RADIANT)
+    then
+        return {
+          [1] = LANE_BOT,
+          [2] = LANE_TOP,
+          [3] = LANE_TOP,
+          [4] = LANE_MID,
+          [5] = LANE_BOT,
+        };
+    elseif (GetTeam() == TEAM_DIRE)
+    then
+        return {
+          [1] = LANE_TOP,
+          [2] = LANE_TOP,
+          [3] = LANE_BOT,
+          [4] = LANE_BOT,
+          [5] = LANE_MID,
+        };
+    end
 end

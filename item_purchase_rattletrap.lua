@@ -45,10 +45,19 @@ function ItemPurchaseThink()
   npcBot.NextItemName = tableItemsToBuy[1];
   local nextItemCost = GetItemCost(npcBot.NextItemName);
   npcBot:SetNextItemPurchaseValue(nextItemCost);
-  canBuyAtSideShop = npcBot:DistanceFromSecretShop() == 0 and IsItemPurchasedFromSideShop(npcBot.NextItemName);
+  canBuyAtSideShop = npcBot:DistanceFromSideShop() < 100 and IsItemPurchasedFromSideShop(npcBot.NextItemName);
   canBuyAtFountain = npcBot:DistanceFromFountain() == 0 and not IsItemPurchasedFromSecretShop(npcBot.NextItemName);
 	if (npcBot:GetGold() >= nextItemCost and (canBuyAtSideShop or canBuyAtFountain))
 	then
+	  -- Sell a single branche if it exists.
+	  for i = 0, 5 do
+        local item = npcBot:GetItemInSlot(i);
+        if (item and item:GetName() == "item_branches") then
+          npcBot:Action_SellItem(item);
+          break;
+        end
+    end
+	
 		npcBot:Action_PurchaseItem(npcBot.NextItemName);
 		table.remove(tableItemsToBuy, 1);
 		npcBot.NextItemName = null;

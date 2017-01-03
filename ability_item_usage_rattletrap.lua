@@ -2,6 +2,7 @@ ba_name = "rattletrap_battery_assault";
 cogs_name = "rattletrap_power_cogs";
 flare_name = "rattletrap_rocket_flare";
 hookshot_name = "rattletrap_hookshot";
+last_tango_eaten = 0;
 
 function AbilityUsageThink()
   local npcBot = GetBot();
@@ -34,7 +35,7 @@ function AbilityUsageThink()
     local tableNearbyEnemyHeroes = npcBot:GetNearbyHeroes( 1000, true, BOT_MODE_NONE );
     for _,npcEnemy in pairs( tableNearbyEnemyHeroes )
     do
-      if (npcEnemy:GetHealth() < flare:GetAbilityDamage()) then
+      if (npcEnemy:GetHealth() < flare:GetAbilityDamage() * .8) then
         npcBot:Action_UseAbilityOnLocation(flare, npcEnemy:GetLocation());
         break;
       end
@@ -46,7 +47,7 @@ function AbilityUsageThink()
     local tableNearbyEnemyCreeps = npcBot:GetNearbyCreeps(1000, true);
     for _,creep in pairs(tableNearbyEnemyCreeps)
     do
-      if (creep:GetHealth() < flare:GetAbilityDamage()) then
+      if (creep:GetHealth() < flare:GetAbilityDamage() * .8) then
         npcBot:Action_UseAbilityOnLocation(flare, creep:GetLocation());
         break;
       end
@@ -88,6 +89,20 @@ function ItemUsageThink()
           local nearbyEnemys = npcBot:GetNearbyHeroes(600, true, BOT_MODE_NONE);
           if (#nearbyEnemys == 0)  then
             npcBot:Action_UseAbilityOnEntity(item, npcBot);
+          end
+        end
+    end
+  end
+  
+  -- Use a tango when medium life. Make sure we do not stack eating tangos.
+  if (npcBot:GetHealth() < npcBot:GetMaxHealth() - 200 and last_tango_eaten < DotaTime() - 15) then
+    for i = 0, 5 do
+        local item = npcBot:GetItemInSlot(i);
+        if (item and item:GetName() == "item_tango") then
+          trees = npcBot:GetNearbyTrees(300);
+          if (#trees > 0) then
+            last_tango_eaten = DotaTime();
+            npcBot:Action_UseAbilityOnTree(item, trees[1]);
           end
         end
     end

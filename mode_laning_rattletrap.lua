@@ -7,6 +7,11 @@
 --	myLoc.x = myLoc.x + 250;
 --	myLoc.y = myLoc.y + 250;
 --	npcBot:Action_MoveToLocation(myLoc);
+
+ --slocal npcBot = GetBot();
+  --npcBot:Action_MoveToLocation(Vector(-6360.558105, 3148.155273, 384.000000));
+  --npcBot:Action_MoveToLocation(Vector(-5000, 2500, 384.000000));
+  --npcBot:Action_MoveToLocation(Vector(-7500, 4500, 384.000000));
 --end
 
 ----------------------------------------------------------------------------------------------------

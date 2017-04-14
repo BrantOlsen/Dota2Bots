@@ -64,11 +64,15 @@ function BuybackUsageThink()
   -- No Buyback Please
 end
 
-function AbilityLevelUpThink() 
+function AbilityLevelUpThink()
+  if GetGameState() ~= GAME_STATE_GAME_IN_PROGRESS and GetGameState() ~= GAME_STATE_PRE_GAME
+  then
+    return
+  end
+
   local npcBot = GetBot();
   aoeAbility = npcBot:GetAbilityByName(aoe);
   if (aoeAbility:CanAbilityBeUpgraded()) then
-    print("leveling " .. aoe);
-    npcBot:Action_LevelAbility(aoe);
+    npcBot:ActionImmediate_LevelAbility(aoe);
   end
 end

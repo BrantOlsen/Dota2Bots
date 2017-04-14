@@ -1,7 +1,28 @@
 aoe = "lina_dragon_slave";
 stun = "lina_light_strike_array";
 ult = "lina_laguna_blade";
+passive = "lina_fiery_soul";
 last_tango_eaten = 0;
+ability_order = {
+	stun,
+	aoe,
+	aoe,
+	passive,
+	aoe,
+	ult,
+	aoe,
+	stun,
+	stun,
+	stun,
+	passive,
+	ult,
+	passive,
+	passive,
+	passive,
+	ult
+};
+
+generic_ability = dofile( GetScriptDirectory().."/ability_level_up" );
 
 function AbilityUsageThink()
   local npcBot = GetBot();
@@ -16,7 +37,6 @@ function AbilityUsageThink()
   local tableNearbyEnemyHeroes = npcBot:GetNearbyHeroes( 1000, true, BOT_MODE_NONE );
   for _,npcEnemy in pairs( tableNearbyEnemyHeroes )
   do
-    print("AnilityUsageThink");
       if (aoeAbility:IsFullyCastable()) then
         npcBot:Action_UseAbilityOnLocation(aoeAbility, npcEnemy:GetLocation());
       end
@@ -65,14 +85,5 @@ function BuybackUsageThink()
 end
 
 function AbilityLevelUpThink()
-  if GetGameState() ~= GAME_STATE_GAME_IN_PROGRESS and GetGameState() ~= GAME_STATE_PRE_GAME
-  then
-    return
-  end
-
-  local npcBot = GetBot();
-  aoeAbility = npcBot:GetAbilityByName(aoe);
-  if (aoeAbility:CanAbilityBeUpgraded()) then
-    npcBot:ActionImmediate_LevelAbility(aoe);
-  end
+  generic_ability.AbilityLevelUpThink(ability_order);
 end

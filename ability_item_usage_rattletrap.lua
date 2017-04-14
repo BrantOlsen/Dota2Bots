@@ -67,13 +67,13 @@ function AbilityUsageThink()
   end
 
   if (hookshot:CanAbilityBeUpgraded()) then
-    npcBot:Action_LevelAbility(hookshot_name);
+    npcBot:ActionImmediate_LevelAbility(hookshot_name);
   elseif (batteryAssualt:CanAbilityBeUpgraded() and cogs:GetLevel() > 0 and (flare:GetLevel() > 0 or batteryAssualt:GetLevel() == 0)) then
-    npcBot:Action_LevelAbility(ba_name);
+    npcBot:ActionImmediate_LevelAbility(ba_name);
   elseif (cogs:CanAbilityBeUpgraded() and (flare:GetLevel() > 0 or cogs:GetLevel() == 0)) then
-    npcBot:Action_LevelAbility(cogs_name);
+    npcBot:ActionImmediate_LevelAbility(cogs_name);
   elseif (flare:CanAbilityBeUpgraded()) then
-    npcBot:Action_LevelAbility(flare_name);
+    npcBot:ActionImmediate_LevelAbility(flare_name);
   end
 end
 

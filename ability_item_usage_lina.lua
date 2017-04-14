@@ -23,7 +23,6 @@ ability_order = {
 };
 
 generic_ability = dofile( GetScriptDirectory().."/ability_level_up" );
-
 item_usage_generic = dofile( GetScriptDirectory().."/item_usage_generic" );
 
 function AbilityUsageThink()
@@ -36,6 +35,24 @@ function AbilityUsageThink()
   stunAbility = npcBot:GetAbilityByName(stun);
   ultAbility = npcBot:GetAbilityByName(ult);
 
+  -- AOE / Flame / First Abliity
+  --   1. If low life enemey in range and can kill them use it.
+  --   2. If you have > 66% mana use it on the closest hero and another hero/creep
+  --   3. If you are retreating and have mana for it just use it on closest hero/creep.
+  --   4. If you have > 20% mana and mana regen above 5 then use it on any creeps/hero.
+
+  -- Stun
+  --   1. If stun + aoe kills a hero in range.
+  --   2. If enemy is in tower range then stun them.
+  --   3. If 1 extra friendly with mana is nearby then stun closest hero and signal to attack it.
+  --   4. If retreating and nearby hero stun them.
+  
+  -- ULT
+  --   1. Hero is at max range and will die from ult.
+  --   2. Enemy hero can be killed and is with only max 1 other.
+  --   3. You are about to die.
+  --   4. At least 3 of them and 3 of you then use it kill first change.
+  
   local tableNearbyEnemyHeroes = npcBot:GetNearbyHeroes( 1000, true, BOT_MODE_NONE );
   for _,npcEnemy in pairs( tableNearbyEnemyHeroes )
   do
@@ -48,6 +65,12 @@ end
 
 function ItemUsageThink()
   item_usage_generic.ItemUsageThink();
+  
+  -- Buy a Eul's Scepter of Divinity (item_cyclone)
+  -- Eul's Scepter
+  --   1. If retreating and nearby hero is not stunned use it.
+  --   2. If you can kill a hero with stun -> aoe -> ult use it.
+  --   3. If 1 extra friendly is nearby and you can stun then use it.
 end
 
 function CourierUsageThink()

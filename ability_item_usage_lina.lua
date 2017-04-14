@@ -47,7 +47,6 @@ function AbilityUsageThink()
 end
 
 function ItemUsageThink()
-  local npcBot = GetBot();
   item_usage_generic.ItemUsageThink();
 end
 

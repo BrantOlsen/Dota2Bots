@@ -4,17 +4,19 @@ flare_name = "rattletrap_rocket_flare";
 hookshot_name = "rattletrap_hookshot";
 last_tango_eaten = 0;
 
+item_usage_generic = dofile( GetScriptDirectory().."/item_usage_generic" );
+
 function AbilityUsageThink()
   local npcBot = GetBot();
 
   -- Check if we're already using an ability
   if ( npcBot:IsUsingAbility() ) then return end;
-  
+
   batteryAssualt = npcBot:GetAbilityByName(ba_name);
   cogs = npcBot:GetAbilityByName(cogs_name);
   flare = npcBot:GetAbilityByName(flare_name);
   hookshot = npcBot:GetAbilityByName(hookshot_name);
-  
+
   local tableNearbyEnemyHeroes = npcBot:GetNearbyHeroes( 330, true, BOT_MODE_NONE );
   for _,npcEnemy in pairs( tableNearbyEnemyHeroes )
   do
@@ -23,7 +25,7 @@ function AbilityUsageThink()
         -- TODO - Find cog closest when out numbered and destroy it.
         npcBot:Action_UseAbility(cogs);
       end
-      
+
       -- Use battery assualt then to kill.
       if (batteryAssualt:IsFullyCastable() and GetUnitToUnitDistance(npcBot, npcEnemy) < 160) then
         npcBot:Action_UseAbility(batteryAssualt);
@@ -53,7 +55,7 @@ function AbilityUsageThink()
       end
     end
   end
-  
+
   -- If in fountain, shoot anywhere
   if (flare:IsFullyCastable() and npcBot:DistanceFromFountain() == 0) then
     local tableNearbyEnemyCreeps = npcBot:GetNearbyCreeps(10000, true);
@@ -79,37 +81,10 @@ end
 
 function ItemUsageThink()
   local npcBot = GetBot();
-  
-  -- Use a flask when low life.
-  if (npcBot:GetHealth() < npcBot:GetMaxHealth() - 350) then
-      for i = 0, 5 do
-        local item = npcBot:GetItemInSlot(i);
-        if (item and item:GetName() == "item_flask") then
-          -- Make sure no one can cancel it.
-          local nearbyEnemys = npcBot:GetNearbyHeroes(600, true, BOT_MODE_NONE);
-          if (#nearbyEnemys == 0)  then
-            npcBot:Action_UseAbilityOnEntity(item, npcBot);
-          end
-        end
-    end
-  end
-  
-  -- Use a tango when medium life. Make sure we do not stack eating tangos.
-  if (npcBot:GetHealth() < npcBot:GetMaxHealth() - 200 and last_tango_eaten < DotaTime() - 15) then
-    for i = 0, 5 do
-        local item = npcBot:GetItemInSlot(i);
-        if (item and item:GetName() == "item_tango") then
-          trees = npcBot:GetNearbyTrees(300);
-          if (#trees > 0) then
-            last_tango_eaten = DotaTime();
-            npcBot:Action_UseAbilityOnTree(item, trees[1]);
-          end
-        end
-    end
-  end
+  item_usage_generic.ItemUsageThink();
 end
 
-function CourierUsageThink() 
+function CourierUsageThink()
   -- Never use courier please
 end
 

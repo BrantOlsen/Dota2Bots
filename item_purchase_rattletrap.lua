@@ -58,9 +58,9 @@ function ItemPurchaseThink()
         end
     end
 	
-		npcBot:Action_PurchaseItem(npcBot.NextItemName);
-		table.remove(tableItemsToBuy, 1);
-		npcBot.NextItemName = null;
+		--npcBot:Action_PurchaseItem(npcBot.NextItemName);
+		--table.remove(tableItemsToBuy, 1);
+		--npcBot.NextItemName = null;
 	end
 
 end

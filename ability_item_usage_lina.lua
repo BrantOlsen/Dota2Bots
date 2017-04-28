@@ -26,14 +26,14 @@ generic_ability = dofile( GetScriptDirectory().."/ability_level_up" );
 item_usage_generic = dofile( GetScriptDirectory().."/item_usage_generic" );
 
 function AbilityUsageThink()
-  local npcBot = GetBot();
+  local bot = GetBot();
 
   -- Check if we're already using an ability
-  if ( npcBot:IsUsingAbility() ) then return end;
+  if ( bot:IsUsingAbility() ) then return end;
 
-  aoeAbility = npcBot:GetAbilityByName(aoe);
-  stunAbility = npcBot:GetAbilityByName(stun);
-  ultAbility = npcBot:GetAbilityByName(ult);
+  aoeAbility = bot:GetAbilityByName(aoe);
+  stunAbility = bot:GetAbilityByName(stun);
+  ultAbility = bot:GetAbilityByName(ult);
 
   -- AOE / Flame / First Abliity
   --   1. If low life enemey in range and can kill them use it.
@@ -47,20 +47,39 @@ function AbilityUsageThink()
   --   3. If 1 extra friendly with mana is nearby then stun closest hero and signal to attack it.
   --   4. If retreating and nearby hero stun them.
   
-  -- ULT
-  --   1. Hero is at max range and will die from ult.
-  --   2. Enemy hero can be killed and is with only max 1 other.
-  --   3. You are about to die.
-  --   4. At least 3 of them and 3 of you then use it kill first change.
-  
-  local tableNearbyEnemyHeroes = npcBot:GetNearbyHeroes( 1000, true, BOT_MODE_NONE );
-  for _,npcEnemy in pairs( tableNearbyEnemyHeroes )
+  local tableNearbyEnemyHeroes = bot:GetNearbyHeroes( 1000, true, BOT_MODE_NONE );
+  for _,enemy in pairs(tableNearbyEnemyHeroes)
   do
-      if (aoeAbility:IsFullyCastable()) then
-        npcBot:Action_UseAbilityOnLocation(aoeAbility, npcEnemy:GetLocation());
-      end
+		
+	-- ULT	
+	--   1. Hero is at max range and will die from ult.
+	--   2. Enemy hero can be killed and is with only max 1 other.
+	--   3. You are about to die.
+	--   4. At least 3 of them and 3 of you then use it kill first change.
+	local useUlt = false;		
+	-- Only check for casting ult if enemy is not BKBed and we can cast our ult.
+	if (ultAbility:IsFullyCastable() and !enemy:IsMagicImmune()) then
+		if (bot::GetHealth() < 200) then
+			useUlt = true;
+		end
+		
+		local enemyDistance = GetUnitToUnitDistance(bot, enemy);
+		-- Only use ult if it will kill the enemey and they are in ult cast range.
+		if (enemy:GetHealth() < ultAbility:GetAbilityDamage() * (1 - enemy:GetMagicResist()) and enemyDistance < ultAbility:GetCastRange()) then
+			-- Do not let them get away on 1 health.
+			if (enemyDistance > ultAbility:GetCastRange() - 100) then
+				useUlt = true;
+			-- Use the ult as early as possible to get a kill in a teamfight.
+			elseif (#tableNearbyEnemyHeroes >= 2) then
+				useUlt = true;
+			end
+		end
+		
+		if (useUlt) then
+			box:Action_UseAbilityOnEntity(ultAbility, enemy);
+		end
+	end
   end
-
 end
 
 function ItemUsageThink()

@@ -46,13 +46,13 @@ function AbilityUsageThink()
   --   2. If enemy is in tower range then stun them.
   --   3. If 1 extra friendly with mana is nearby then stun closest hero and signal to attack it.
   --   4. If retreating and nearby hero stun them.
-  
+
   -- ULT
   --   1. Hero is at max range and will die from ult.
   --   2. Enemy hero can be killed and is with only max 1 other.
   --   3. You are about to die.
   --   4. At least 3 of them and 3 of you then use it kill first change.
-  
+
   local tableNearbyEnemyHeroes = npcBot:GetNearbyHeroes( 1000, true, BOT_MODE_NONE );
   for _,npcEnemy in pairs( tableNearbyEnemyHeroes )
   do
@@ -65,7 +65,21 @@ end
 
 function ItemUsageThink()
   item_usage_generic.ItemUsageThink();
-  
+
+  local npcBot = GetBot();
+
+  for i = 0, 5 do
+    local item = npcBot:GetItemInSlot(i);
+    if (item and item:GetName() == "item_cyclone") then --and item:IsCooldownReady()
+      local nearbyEnemys = npcBot:GetNearbyHeroes( 570, true, BOT_MODE_NONE );
+      for _,npcEnemy in pairs( nearbyEnemys ) do
+        npcBot:Action_UseAbilityOnEntity(item, npcEnemy);
+        break;
+      end
+      break;
+    end
+  end
+
   -- Buy a Eul's Scepter of Divinity (item_cyclone)
   -- Eul's Scepter
   --   1. If retreating and nearby hero is not stunned use it.

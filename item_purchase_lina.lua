@@ -8,13 +8,11 @@ items = {
   "item_ring_of_regen",
   "item_ring_of_protection",
   "item_infused_raindrop",
-  "item_force_staff",
-  "item_point_booster",
-  "item_ogre_axe",
+  "item_void_stone",
   "item_staff_of_wizardry",
-  "item_blade_of_alacrity",
-  "item_recipe_ultimate_scepter",
-  "item_lotus_orb",
+  "item_wind_lace",
+  "item_recipe_cyclone",
+  "item_force_staff",
 };
 
 function ItemPurchaseThink()

@@ -17,7 +17,6 @@ function GetDesire()
 	local hasEnoughMana = npcBot:GetMana() > npcBot:GetMaxMana() * .9;
 	local hasEnoughHealth = npcBot:GetHealth() > npcBot:GetMaxHealth() * .9;
   if (npcBot:GetAbilityByName("rattletrap_hookshot"):IsTrained() and hasEnoughMana and hasEnoughHealth) then
-    print("Hookshot off cooldown, trying to use it for a kill.");
     -- TODO - Need a Think here since the computer has no idea what roaming is.
 		return BOT_ACTION_DESIRE_VERYLOW;
 	end

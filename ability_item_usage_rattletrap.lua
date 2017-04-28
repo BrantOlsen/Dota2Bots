@@ -58,7 +58,7 @@ function AbilityUsageThink()
 
   -- If in fountain, shoot anywhere
   if (flare:IsFullyCastable() and npcBot:DistanceFromFountain() == 0) then
-    local tableNearbyEnemyCreeps = npcBot:GetNearbyCreeps(10000, true);
+    local tableNearbyEnemyCreeps = npcBot:GetNearbyCreeps(1000, true);
     for _,creep in pairs(tableNearbyEnemyCreeps)
     do
       if (creep:GetHealth() < creep:GetMaxHealth() * .8) then

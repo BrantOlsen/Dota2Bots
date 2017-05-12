@@ -1,3 +1,4 @@
+distanceToInitiate = 600;
 aoe = "lina_dragon_slave";
 stun = "lina_light_strike_array";
 ult = "lina_laguna_blade";
@@ -90,12 +91,29 @@ function ItemUsageThink()
   for i = 0, 5 do
     local item = npcBot:GetItemInSlot(i);
     if (item and item:GetName() == "item_cyclone") then --and item:IsCooldownReady()
-      local nearbyEnemys = npcBot:GetNearbyHeroes( 570, true, BOT_MODE_NONE );
-      for _,npcEnemy in pairs( nearbyEnemys ) do
-        npcBot:Action_UseAbilityOnEntity(item, npcEnemy);
+        local nearbyEnemys = npcBot:GetNearbyHeroes( 570, true, BOT_MODE_NONE );
+        for _,npcEnemy in pairs( nearbyEnemys ) do
+            local useAbility = false;
+            aoeAbility = npcBot:GetAbilityByName(aoe);
+            ultAbility = npcBot:GetAbilityByName(ult);
+
+            if (npcBot:GetActiveMode() == BOT_MODE_RETREAT and not npcEnemy:IsStunned()) then
+                print("Retreating!!!!!!!!!!!!!");
+                useAbility = true;
+            elseif ((aoeAbility:GetAbilityDamage() + ultAbility:GetAbilityDamage()) >= npcEnemy:GetHealth()) then
+                useAbility = true;
+            else
+                local nearbyFriendlies = npcBot:GetNearbyHeroes( distanceToInitiate, true, BOT_MODE_NONE );
+                if (#nearbyFriendlies > 0) then
+                    useAbility = true;
+                end
+            end
+            if (useAbility) then
+                npcBot:Action_UseAbilityOnEntity(item, npcEnemy);
+                break;
+            end
+        end
         break;
-      end
-      break;
     end
   end
 

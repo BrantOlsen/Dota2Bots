@@ -6,7 +6,7 @@ items = {
   "item_branches",
   "item_boots",
   "item_ring_of_regen",
-  "item_ring_of_protection",
+  "item_wind_lace",
   "item_infused_raindrop",
   "item_void_stone",
   "item_staff_of_wizardry",

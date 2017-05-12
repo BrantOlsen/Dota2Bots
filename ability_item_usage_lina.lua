@@ -36,12 +36,6 @@ function AbilityUsageThink()
   stunAbility = bot:GetAbilityByName(stun);
   ultAbility = bot:GetAbilityByName(ult);
 
-  -- AOE / Flame / First Abliity
-  --   1. If low life enemey in range and can kill them use it.
-  --   2. If you have > 66% mana use it on the closest hero and another hero/creep
-  --   3. If you are retreating and have mana for it just use it on closest hero/creep.
-  --   4. If you have > 20% mana and mana regen above 5 then use it on any creeps/hero.
-
   -- Stun
   --   1. If stun + aoe kills a hero in range.
   --   2. If enemy is in tower range then stun them.
@@ -51,7 +45,6 @@ function AbilityUsageThink()
   local tableNearbyEnemyHeroes = bot:GetNearbyHeroes( 1000, true, BOT_MODE_NONE );
   for _,enemy in pairs(tableNearbyEnemyHeroes)
   do
-
 	-- ULT
 	--   1. Hero is at max range and will die from ult.
 	--   2. Enemy hero can be killed and is with only max 1 other.
@@ -59,8 +52,8 @@ function AbilityUsageThink()
 	--   4. At least 3 of them and 3 of you then use it kill first change.
 	local useUlt = false;
 	-- Only check for casting ult if enemy is not BKBed and we can cast our ult.
-	if (ultAbility:IsFullyCastable() and !enemy:IsMagicImmune()) then
-		if (bot::GetHealth() < 200) then
+	if (ultAbility:IsFullyCastable() and not enemy:IsMagicImmune()) then
+		if (bot:GetHealth() < 200) then
 			useUlt = true;
 		end
 
@@ -79,6 +72,48 @@ function AbilityUsageThink()
 		if (useUlt) then
 			box:Action_UseAbilityOnEntity(ultAbility, enemy);
 		end
+	end
+		
+	-- AOE / Flame / First Abliity
+	--   1. If low life enemey in range and can kill them use it.
+    if (aoeAbility:IsFullyCastable() and not enemy:IsMagicImmune()) then
+		if (enemy:GetHealth() < aoeAbility:GetAbilityDamage() * (1 - enemy:GetMagicResist()) and enemyDistance < aoeAbility:GetCastRange()) then
+			box:Action_UseAbilityOnEntity(aoeAbility, enemey);
+		end
+	end
+  end
+
+  -- AOE / Flame / First Abliity
+  --   2. If you have > 66% mana use it on the closest hero and another hero/creep
+  --   3. If you are retreating and have mana for it just use it on closest hero/creep.
+  --   4. If you have > 20% mana and mana regen above 5 then use it on any creeps/hero.
+  if (aoeAbility:IsFullyCastable() and (bot:GetMana() > (bot:GetMaxMana() * .66) or (bot:GetMana() > (bot:GetMaxMana() * .2) and bot:GetManaRegen() > 5))) then
+	local useAoe = false;
+	local aoeTarget = nil;
+	  -- Find all nearby enemy creeps.
+	  local tableNearbyEnemyCreeps = bot:GetNearbyCreeps(600, true);
+	  if (#tableNearbyEnemyCreeps >= 2) then
+		for _,creep in pairs(tableNearbyEnemyCreeps)
+		  do
+			print("Found creep nearby...");
+			if (creep:GetHealth() < aoeAbility:GetAbilityDamage()) then
+			  useAoe = true;
+			  aoeTarget = creep:GetLocation();
+			  for _,enemy in pairs(tableNearbyEnemyHeroes)
+			  do
+				local enemyPos = enemy:GetLocation();
+				print("Found an enemey nearby too...");
+				aoeTarget = Vector((enemyPos.x + aoeTarget.x) / 2, (enemyPos.y + aoeTarget.y) / 2, 0);
+				break;
+			  end
+			  break;
+			end
+		  end
+	  end
+	  
+	if (useAoe) then
+		print("Using ability...");
+		bot:ActionPush_UseAbilityOnLocation(aoeAbility, aoeTarget);
 	end
   end
 end

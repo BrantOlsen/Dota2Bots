@@ -98,7 +98,6 @@ function ItemUsageThink()
             ultAbility = npcBot:GetAbilityByName(ult);
 
             if (npcBot:GetActiveMode() == BOT_MODE_RETREAT and not npcEnemy:IsStunned()) then
-                print("Retreating!!!!!!!!!!!!!");
                 useAbility = true;
             elseif ((aoeAbility:GetAbilityDamage() + ultAbility:GetAbilityDamage()) >= npcEnemy:GetHealth()) then
                 useAbility = true;

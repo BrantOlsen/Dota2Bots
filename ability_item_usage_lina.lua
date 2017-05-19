@@ -4,6 +4,7 @@ stun = "lina_light_strike_array";
 ult = "lina_laguna_blade";
 passive = "lina_fiery_soul";
 last_tango_eaten = 0;
+time_to_trigger_stun = 0;
 ability_order = {
 	stun,
 	aoe,
@@ -41,6 +42,7 @@ function AbilityUsageThink()
   --   2. If enemy is in tower range then stun them.
   --   3. If 1 extra friendly with mana is nearby then stun closest hero and signal to attack it.
   --   4. If retreating and nearby hero stun them.
+  --   5. If used Eul's scepter, stun that target.
 
   local tableNearbyEnemyHeroes = bot:GetNearbyHeroes( 1000, true, BOT_MODE_NONE );
   for _,enemy in pairs(tableNearbyEnemyHeroes)
@@ -70,15 +72,24 @@ function AbilityUsageThink()
 		end
 
 		if (useUlt) then
-			box:Action_UseAbilityOnEntity(ultAbility, enemy);
+			bot:Action_UseAbilityOnEntity(ultAbility, enemy);
+            return;
 		end
 	end
-		
+
+    if (stunAbility:IsFullyCastable() and time_to_trigger_stun > 0 and DotaTime() > time_to_trigger_stun) then
+        time_to_trigger_stun = 0;
+        bot:Action_UseAbilityOnLocation(stunAbility, enemy:GetLocation());
+        return;
+    end
+
+
 	-- AOE / Flame / First Abliity
 	--   1. If low life enemey in range and can kill them use it.
     if (aoeAbility:IsFullyCastable() and not enemy:IsMagicImmune()) then
 		if (enemy:GetHealth() < aoeAbility:GetAbilityDamage() * (1 - enemy:GetMagicResist()) and enemyDistance < aoeAbility:GetCastRange()) then
-			box:Action_UseAbilityOnEntity(aoeAbility, enemey);
+			bot:Action_UseAbilityOnEntity(aoeAbility, enemy);
+            return;
 		end
 	end
   end
@@ -110,7 +121,7 @@ function AbilityUsageThink()
 			end
 		  end
 	  end
-	  
+
 	if (useAoe) then
 		print("Using ability...");
 		bot:ActionPush_UseAbilityOnLocation(aoeAbility, aoeTarget);
@@ -122,6 +133,11 @@ function ItemUsageThink()
   item_usage_generic.ItemUsageThink();
 
   local npcBot = GetBot();
+
+  --if too long has passed since using Eul's scepter, kill the flag to cast stun
+   if (DotaTime() > time_to_trigger_stun + 5) then
+      time_to_trigger_stun = 0;
+   end
 
   for i = 0, 5 do
     local item = npcBot:GetItemInSlot(i);
@@ -136,10 +152,12 @@ function ItemUsageThink()
                 useAbility = true;
             elseif ((aoeAbility:GetAbilityDamage() + ultAbility:GetAbilityDamage()) >= npcEnemy:GetHealth()) then
                 useAbility = true;
+                time_to_trigger_stun = DotaTime() + 2.1;
             else
                 local nearbyFriendlies = npcBot:GetNearbyHeroes( distanceToInitiate, true, BOT_MODE_NONE );
                 if (#nearbyFriendlies > 0) then
                     useAbility = true;
+                    time_to_trigger_stun = DotaTime() + 2.1;
                 end
             end
             if (useAbility) then

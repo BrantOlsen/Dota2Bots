@@ -36,7 +36,7 @@ function AbilityUsageThink()
 	aoeAbility = bot:GetAbilityByName(aoe);
 	stunAbility = bot:GetAbilityByName(stun);
 	ultAbility = bot:GetAbilityByName(ult);
-
+    
   -- Stun
   --   1. If stun + aoe kills a hero in range.
   --   2. If enemy is in tower range then stun them.
@@ -47,6 +47,7 @@ function AbilityUsageThink()
   local tableNearbyEnemyHeroes = bot:GetNearbyHeroes( 1000, true, BOT_MODE_NONE );
   for _,enemy in pairs(tableNearbyEnemyHeroes)
   do
+   bot:ActionImmediate_Chat( "I see someone", true );
 	-- ULT
 	--   1. Hero is at max range and will die from ult.
 	--   2. Enemy hero can be killed and is with only max 1 other.
@@ -60,6 +61,7 @@ function AbilityUsageThink()
 		end
 
 		local enemyDistance = GetUnitToUnitDistance(bot, enemy);
+        
 		-- Only use ult if it will kill the enemey and they are in ult cast range.
 		if (enemy:GetHealth() < ultAbility:GetAbilityDamage() * (1 - enemy:GetMagicResist()) and enemyDistance < ultAbility:GetCastRange()) then
 			-- Do not let them get away on 1 health.
@@ -72,6 +74,7 @@ function AbilityUsageThink()
 		end
 
 		if (useUlt) then
+           
 			bot:Action_UseAbilityOnEntity(ultAbility, enemy);
             return;
 		end

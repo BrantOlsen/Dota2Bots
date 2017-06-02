@@ -5,8 +5,8 @@ ult = "lina_laguna_blade";
 passive = "lina_fiery_soul";
 last_tango_eaten = 0;
 ability_order = {
-	stun,
 	aoe,
+	stun,
 	aoe,
 	passive,
 	aoe,
@@ -27,20 +27,20 @@ generic_ability = dofile( GetScriptDirectory().."/ability_level_up" );
 item_usage_generic = dofile( GetScriptDirectory().."/item_usage_generic" );
 
 function AbilityUsageThink()
-  local bot = GetBot();
+	local bot = GetBot();
 
-  -- Check if we're already using an ability
-  if ( bot:IsUsingAbility() ) then return end;
+	-- Check if we're already using an ability
+	if ( bot:IsUsingAbility() ) then return end;
 
-  aoeAbility = bot:GetAbilityByName(aoe);
-  stunAbility = bot:GetAbilityByName(stun);
-  ultAbility = bot:GetAbilityByName(ult);
+	aoeAbility = bot:GetAbilityByName(aoe);
+	stunAbility = bot:GetAbilityByName(stun);
+	ultAbility = bot:GetAbilityByName(ult);
 
-  -- Stun
-  --   1. If stun + aoe kills a hero in range.
-  --   2. If enemy is in tower range then stun them.
-  --   3. If 1 extra friendly with mana is nearby then stun closest hero and signal to attack it.
-  --   4. If retreating and nearby hero stun them.
+	-- Stun
+	--   1. If stun + aoe kills a hero in range.
+	--   2. If enemy is in tower range then stun them.
+	--   3. If 1 extra friendly with mana is nearby then stun closest hero and signal to attack it.
+	--   4. If retreating and nearby hero stun them.
 
   local tableNearbyEnemyHeroes = bot:GetNearbyHeroes( 1000, true, BOT_MODE_NONE );
   for _,enemy in pairs(tableNearbyEnemyHeroes)
@@ -77,45 +77,60 @@ function AbilityUsageThink()
 	-- AOE / Flame / First Abliity
 	--   1. If low life enemey in range and can kill them use it.
     if (aoeAbility:IsFullyCastable() and not enemy:IsMagicImmune()) then
-		if (enemy:GetHealth() < aoeAbility:GetAbilityDamage() * (1 - enemy:GetMagicResist()) and enemyDistance < aoeAbility:GetCastRange()) then
+		local enemyInRange = enemyDistance < aoeAbility:GetCastRange();
+		local canKill = enemy:GetHealth() < aoeAbility:GetAbilityDamage() * (1 - enemy:GetMagicResist());
+		local canUseWithUtl = bot:GetMana() >= aoeAbility:GetManaCost() + ultAbility:GetManaCost();
+		local canKillWithUlt =  enemy:GetHealth() < (ultAbility:GetAbilityDamage() + aoeAbility:GetAbilityDamage()) * (1 - enemy:GetMagicResist())
+		if (enemyInRange and (canKill or (canUseWithUtl and canKillWithUlt))) then
 			box:Action_UseAbilityOnEntity(aoeAbility, enemey);
 		end
 	end
   end
 
-  -- AOE / Flame / First Abliity
-  --   2. If you have > 66% mana use it on the closest hero and another hero/creep
-  --   3. If you are retreating and have mana for it just use it on closest hero/creep.
-  --   4. If you have > 20% mana and mana regen above 5 then use it on any creeps/hero.
-  if (aoeAbility:IsFullyCastable() and (bot:GetMana() > (bot:GetMaxMana() * .66) or (bot:GetMana() > (bot:GetMaxMana() * .2) and bot:GetManaRegen() > 5))) then
-	local useAoe = false;
-	local aoeTarget = nil;
-	  -- Find all nearby enemy creeps.
-	  local tableNearbyEnemyCreeps = bot:GetNearbyCreeps(600, true);
-	  if (#tableNearbyEnemyCreeps >= 2) then
-		for _,creep in pairs(tableNearbyEnemyCreeps)
-		  do
-			print("Found creep nearby...");
-			if (creep:GetHealth() < aoeAbility:GetAbilityDamage()) then
-			  useAoe = true;
-			  aoeTarget = creep:GetLocation();
-			  for _,enemy in pairs(tableNearbyEnemyHeroes)
-			  do
-				local enemyPos = enemy:GetLocation();
-				print("Found an enemey nearby too...");
-				aoeTarget = Vector((enemyPos.x + aoeTarget.x) / 2, (enemyPos.y + aoeTarget.y) / 2, 0);
-				break;
-			  end
-			  break;
+	-- AOE / Flame / First Abliity
+	--   2. If you have > 50% mana use it on the closest hero and another hero/creep
+	--   3. If you are retreating and have mana for it just use it on closest hero/creep.
+	--   4. If you have > 20% mana and mana regen above 5 then use it on any creeps/hero.
+	local minManaPercetnageForUsingAoe = .5;
+	local minManaPercentageLateGameForUsingAoe = .2;
+	local minManaRegenForUsingAoeWithLowerThreshold = 5;
+	if (aoeAbility:IsFullyCastable() and (bot:GetMana() > (bot:GetMaxMana() * minManaPercetnageForUsingAoe) or (bot:GetMana() > (bot:GetMaxMana() * minManaPercentageLateGameForUsingAoe) and bot:GetManaRegen() > minManaRegenForUsingAoeWithLowerThreshold))) then
+		local useAoe = false;
+		local aoeRaidus = aoeAbility:GetAOERadius();
+		local aoeTarget = nil;
+		-- Find all nearby enemy creeps.
+		local tableNearbyEnemyCreeps = bot:GetNearbyCreeps(1000, true);
+		if (#tableNearbyEnemyCreeps >= 2) then
+			for _,creep in pairs(tableNearbyEnemyCreeps)
+			do
+				if (creep:GetHealth() < aoeAbility:GetAbilityDamage()) then
+					print("Found creep to kill...");
+					useAoe = true;
+					aoeTarget = creep:GetLocation();
+					print("Found " .. #tableNearbyEnemyHeroes);
+					for _,enemy in pairs(tableNearbyEnemyHeroes)
+					do
+						local enemyPos = enemy:GetLocation();
+						print("He is at " .. enemyPos.x);
+						if (math.abs(enemyPos.y - aoeTarget.y) <= aoeRaidus) then
+							print("Found an enemey nearby too...");
+							aoeTarget = Vector((enemyPos.x + aoeTarget.x) / 2, (enemyPos.y + aoeTarget.y) / 2, 0);
+							break;
+						else 
+							print (math.abs(enemeyPos.y - aoeTarget.y));
+							print (aoeRaidus);
+						end
+					end
+					break;
+				end
 			end
-		  end
-	  end
-	  
-	if (useAoe) then
-		print("Using ability...");
-		bot:ActionPush_UseAbilityOnLocation(aoeAbility, aoeTarget);
+		end
+		  
+		if (useAoe) then
+		    print ("Use AOE...");
+			bot:ActionPush_UseAbilityOnLocation(aoeAbility, aoeTarget);
+		end
 	end
-  end
 end
 
 function ItemUsageThink()
